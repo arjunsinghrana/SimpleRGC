@@ -41,14 +41,14 @@ class XLSXColocalizationOutput(private val transductionParameters: Parameters.Tr
     private fun writeSummarySheet(workbook: XSSFWorkbook) {
         // Add summary data
         for ((fileName, result) in fileNameAndResultsList) {
-            summaryData.addRow(SummaryRow(fileName, result.getSummary()))
+            summaryData.addRow(SummaryRow(fileName, result))
         }
         summaryData.produceXLSX(workbook, "Summary")
     }
 
     private fun writeTransductionAnalysisSheet(workbook: XSSFWorkbook) {
         for ((fileName, result) in fileNameAndResultsList) {
-            result.overlappingTransducedIntensityAnalysis.forEach { cellAnalysis ->
+            result.channelResults[transductionParameters.transducedChannel].cellAnalyses.forEach { cellAnalysis ->
                 transductionAnalysisData.addRow(TransductionAnalysisRow(fileName, cellAnalysis))
             }
         }

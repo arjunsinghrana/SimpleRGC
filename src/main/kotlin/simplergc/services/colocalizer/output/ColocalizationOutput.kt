@@ -33,30 +33,18 @@ abstract class ColocalizationOutput : SimpleOutput {
         "File Name",
         "Number of Cells",
         "Number of Transduced Cells",
-        "Transduction Efficiency (%)",
-        "Average Morphology Area (pixel^2)",
-        "Mean Fluorescence Intensity (a.u.)",
-        "Median Fluorescence Intensity (a.u.)",
-        "Min Fluorescence Intensity (a.u.)",
-        "Max Fluorescence Intensity (a.u.)",
-        "RawIntDen"
+        "Transduction Efficiency (%)"
     ))
 
     data class SummaryRow(
         val fileName: String,
-        val summary: TransductionResult.Summary
+        val result: TransductionResult
     ) : BaseRow {
         override fun toList() = listOf(
             StringField(fileName),
-            IntField(summary.targetCellCount),
-            IntField(summary.transducedCellCount),
-            DoubleField(summary.transductionEfficiency),
-            IntField(summary.avgMorphologyArea),
-            IntField(summary.meanFluorescenceIntensity),
-            IntField(summary.medianFluorescenceIntensity),
-            IntField(summary.minFluorescenceIntensity),
-            IntField(summary.maxFluorescenceIntenstity),
-            IntField(summary.rawIntDen)
+            IntField(result.targetCellCount),
+            IntField(result.transducedCellCount),
+            DoubleField(result.transductionEfficiency)
         )
     }
 
