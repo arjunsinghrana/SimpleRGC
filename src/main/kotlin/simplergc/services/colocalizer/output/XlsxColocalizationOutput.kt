@@ -4,74 +4,50 @@ import java.io.File
 import org.apache.commons.io.FilenameUtils
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import simplergc.services.Parameters
-import simplergc.services.Table
+import simplergc.services.XlsxTableWriter
 
 /**
- * Displays a table for a transduction analysis with the result of
- * overlapping, transduced cells.
+ * Outputs the analysis with the result of overlapping, transduced cells in XLSX format.
  */
-open class XlsxColocalizationOutput(private val transductionParameters: Parameters.TransductionParameters) :
-    ColocalizationOutput() {
+class XlsxColocalizationOutput(
+    transductionParameters: Parameters.Transduction,
+    private val workbook: XSSFWorkbook = XSSFWorkbook()
+) :
+    ColocalizationOutput(transductionParameters) {
 
-    override fun output() {
-        val workbook = XSSFWorkbook()
-        writeDocSheet(workbook)
-        writeSummarySheet(workbook)
-        writeTransductionAnalysisSheet(workbook)
-        writeParamsSheet(workbook)
+    override val tableWriter = XlsxTableWriter(workbook)
 
-        // Write file and close streams
-        val outputXlsxFile = File(FilenameUtils.removeExtension(transductionParameters.outputFile.path) + ".xlsx")
-        val xlsxFileOut = outputXlsxFile.outputStream()
-        workbook.write(xlsxFileOut)
-        xlsxFileOut.close()
+    fun writeWorkbook() {
+        val filename = FilenameUtils.removeExtension(transductionParameters.outputFile.path) ?: "Untitled"
+        val file = File("$filename.xlsx")
+        val outputStream = file.outputStream()
+
+        workbook.write(outputStream)
+        outputStream.close()
         workbook.close()
     }
 
-    private fun writeDocSheet(workbook: XSSFWorkbook) {
-        val docXlsx = Table(arrayOf())
-        docXlsx.addRow(DocumentationRow("The article: ", "TODO: Insert citation"))
-        docXlsx.addRow(DocumentationRow("", ""))
-        docXlsx.addRow(DocumentationRow("Abbreviation", "Description"))
-        docXlsx.addRow(DocumentationRow("Summary", "Key measurements per image"))
-        docXlsx.addRow(DocumentationRow("Transduced cells analysis", "Per-cell metrics of transduced cells"))
-        docXlsx.addRow(DocumentationRow("Parameters", "Parameters used to run the SimpleRGC plugin"))
-        docXlsx.produceXlsx(workbook, "Documentation")
+    override fun output() {
+        writeDocumentation()
+        writeSummary()
+        writeAnalysis()
+        writeParameters()
+        writeWorkbook()
     }
 
-    internal fun writeSummarySheet(workbook: XSSFWorkbook) {
-        // Add summary data
-        for ((fileName, result) in fileNameAndResultsList) {
-            summaryData.addRow(SummaryRow(fileName = fileName, summary = result.getSummary()))
-        }
-        summaryData.produceXlsx(workbook, "Summary")
+    override fun writeDocumentation() {
+        tableWriter.produce(documentationData(), "Documentation")
     }
 
-    private fun writeTransductionAnalysisSheet(workbook: XSSFWorkbook) {
-        for ((fileName, result) in fileNameAndResultsList) {
-            result.overlappingTransducedIntensityAnalysis.forEachIndexed { i, cellAnalysis ->
-                transductionAnalysisData.addRow(TransductionAnalysisRow(fileName = fileName, transducedCell = i, cellAnalysis = cellAnalysis))
-            }
-        }
-        transductionAnalysisData.produceXlsx(workbook, "Transduction Analysis")
+    override fun writeSummary() {
+        tableWriter.produce(summaryData(), "Summary")
     }
 
-    internal fun writeParamsSheet(workbook: XSSFWorkbook) {
-        // Add parameters data
-        for ((fileName, _) in fileNameAndResultsList) {
-            parametersData.addRow(
-                ParametersRow(
-                    fileName = fileName,
-                    morphologyChannel = transductionParameters.targetChannel,
-                    excludeAxonsFromMorphologyChannel = transductionParameters.shouldRemoveAxonsFromTargetChannel,
-                    transductionChannel = transductionParameters.transducedChannel,
-                    excludeAxonsFromTransductionChannel = transductionParameters.shouldRemoveAxonsFromTransductionChannel,
-                    cellDiameterText = transductionParameters.cellDiameterText,
-                    localThresholdRadius = transductionParameters.localThresholdRadius,
-                    gaussianBlurSigma = transductionParameters.gaussianBlurSigma
-                )
-            )
-        }
-        parametersData.produceXlsx(workbook, "Parameters")
+    override fun writeAnalysis() {
+        tableWriter.produce(analysisData(), "Transudction Analysis")
+    }
+
+    override fun writeParameters() {
+        tableWriter.produce(parameterData(), "Parameters")
     }
 }

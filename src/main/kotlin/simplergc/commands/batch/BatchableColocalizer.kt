@@ -8,10 +8,10 @@ import simplergc.commands.ChannelDoesNotExistException
 import simplergc.commands.RGCTransduction
 import simplergc.commands.RGCTransduction.TransductionResult
 import simplergc.commands.batch.RGCBatch.OutputFormat
-import simplergc.commands.batch.output.BatchCsvColocalizationOutput
-import simplergc.commands.batch.output.BatchXlsxColocalizationOutput
 import simplergc.services.CellDiameterRange
 import simplergc.services.Parameters
+import simplergc.services.batch.output.BatchCsvColocalizationOutput
+import simplergc.services.batch.output.BatchXlsxColocalizationOutput
 import java.io.File
 
 class BatchableColocalizer(
@@ -49,7 +49,7 @@ class BatchableColocalizer(
             }
         }
 
-        val transductionParameters = Parameters.TransductionParameters(
+        val transductionParameters = Parameters.Transduction(
             outputFile,
             shouldRemoveAxonsFromTargetChannel,
             transducedChannel,
@@ -65,7 +65,7 @@ class BatchableColocalizer(
 
     private fun writeOutput(
         fileNameAndAnalysis: List<Pair<String, TransductionResult>>,
-        transductionParameters: Parameters.TransductionParameters,
+        transductionParameters: Parameters.Transduction,
         outputFormat: String
     ) {
         val output = when (outputFormat) {

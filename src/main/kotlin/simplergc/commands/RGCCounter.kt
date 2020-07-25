@@ -218,7 +218,7 @@ class RGCCounter : Command, Previewable {
     }
 
     private fun writeOutput(numCells: Int, file: String, cellDiameterRange: CellDiameterRange) {
-        val counterParameters = Parameters.CounterParameters(
+        val counterParameters = Parameters.Counter(
             outputFile!!,
             targetChannel,
             cellDiameterRange,
@@ -237,7 +237,7 @@ class RGCCounter : Command, Previewable {
         try {
             output.output()
         } catch (ioe: IOException) {
-            displayOutputFileErrorDialog()
+            displayErrorDialog(ioe.message)
         }
 
         // The cell counting results are clearly displayed if the output
