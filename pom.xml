@@ -51,6 +51,11 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk7</artifactId>
             <version>${kotlin.version}</version>
@@ -137,7 +142,6 @@
                         <artifactId>ktlint</artifactId>
                         <version>0.34.2</version>
                     </dependency>
-                    <!-- additional 3rd party ruleset(s) can be specified here -->
                 </dependencies>
             </plugin>
             <plugin>
@@ -246,6 +250,10 @@
         <repository>
             <id>scijava.public</id>
             <url>https://maven.scijava.org/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <url>http://jcenter.bintray.com</url>
         </repository>
     </repositories>
 

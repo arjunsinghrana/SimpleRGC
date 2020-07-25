@@ -3,6 +3,9 @@ package simplergc.commands.batch
 import ij.IJ
 import ij.ImagePlus
 import ij.gui.MessageDialog
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.scijava.Context
 import simplergc.commands.ChannelDoesNotExistException
 import simplergc.commands.RGCTransduction
@@ -39,13 +42,26 @@ class BatchableColocalizer(
         context.inject(rgcTransduction)
 
         val fileNameAndAnalysis = mutableListOf<Pair<String, TransductionResult>>()
-        for (image in inputImages) {
-            try {
-                val analysis = rgcTransduction.process(image, cellDiameterRange)
-                fileNameAndAnalysis.add(Pair(image.title, analysis))
-            } catch (e: ChannelDoesNotExistException) {
-                MessageDialog(IJ.getInstance(), "Error", e.message)
-                continue
+
+        val deferred = inputImages.map { image ->
+            GlobalScope.async {
+                try {
+                    return@async rgcTransduction.process(image, cellDiameterRange)
+                } catch (e: ChannelDoesNotExistException) {
+                    MessageDialog(IJ.getInstance(), "Error", e.message)
+                    return@async null
+                }
+            }
+        }
+
+        var results = listOf<TransductionResult?>()
+        runBlocking {
+            results = deferred.map { it.await() }
+        }
+        for ((i, image) in inputImages.withIndex()) {
+            val v = results[i]
+            if (v != null) {
+                fileNameAndAnalysis.add(Pair(image.title, v))
             }
         }
 
