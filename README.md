@@ -32,7 +32,7 @@ After installing, the plugin can be found in the ImageJ menu under `Plugins > Si
 
 ## Details
 
-We're still working on this bit.
+Read the accompanying paper at https://arxiv.org/abs/2008.06276.
 
 ## Status
 
